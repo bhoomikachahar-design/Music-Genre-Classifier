@@ -1,0 +1,123 @@
+[
+  {
+    "id": "bcdf1bae9b.wav",
+    "filename": "sample_rock.wav",
+    "timestamp": "2026-11-17 21:54:31",
+    "predicted_genre": "rock",
+    "confidence_percentage": 19.71,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/bcdf1bae9b.wav",
+    "duration": 5.0,
+    "tempo_bpm": 136.0
+  },
+  {
+    "id": "fe1e0bfcc0.wav",
+    "filename": "sample_disco.wav",
+    "timestamp": "2026-11-17 21:54:15",
+    "predicted_genre": "reggae",
+    "confidence_percentage": 25.31,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/fe1e0bfcc0.wav",
+    "duration": 5.0,
+    "tempo_bpm": 123.0
+  },
+  {
+    "id": "2ddc6553c6.wav",
+    "filename": "sample_classical.wav",
+    "timestamp": "2026-11-17 21:53:54",
+    "predicted_genre": "classical",
+    "confidence_percentage": 26.43,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/2ddc6553c6.wav",
+    "duration": 5.0,
+    "tempo_bpm": 117.5
+  },
+  {
+    "id": "0a694a015b.wav",
+    "filename": "sample_jazz.wav",
+    "timestamp": "2026-11-17 17:45:41",
+    "predicted_genre": "blues",
+    "confidence_percentage": 19.35,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/0a694a015b.wav",
+    "duration": 5.0,
+    "tempo_bpm": 112.3
+  },
+  {
+    "id": "484f7db74c.wav",
+    "filename": "sample_disco.wav",
+    "timestamp": "2026-11-17 17:45:21",
+    "predicted_genre": "reggae",
+    "confidence_percentage": 25.31,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/484f7db74c.wav",
+    "duration": 5.0,
+    "tempo_bpm": 123.0
+  },
+  {
+    "id": "sample_classical.wav",
+    "filename": "Sample: Classical",
+    "timestamp": "2026-11-17 17:43:56",
+    "predicted_genre": "classical",
+    "confidence_percentage": 26.43,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/sample/sample_classical.wav",
+    "duration": 5.0,
+    "tempo_bpm": 117.5
+  },
+  {
+    "id": "sample_classical.wav",
+    "filename": "Sample: Classical",
+    "timestamp": "2026-11-17 16:05:10",
+    "predicted_genre": "classical",
+    "confidence_percentage": 26.43,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/sample/sample_classical.wav",
+    "duration": 5.0,
+    "tempo_bpm": 117.5
+  },
+  {
+    "id": "318d015398.wav",
+    "filename": "37be19de-dc50-4e7d-bf2b-bffdd0cfa511.wav",
+    "timestamp": "2026-11-17 15:45:05",
+    "predicted_genre": "classical",
+    "confidence_percentage": 19.93,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/318d015398.wav",
+    "duration": 10.0,
+    "tempo_bpm": 143.6
+  },
+  {
+    "id": "sample_jazz.wav",
+    "filename": "Sample: Jazz",
+    "timestamp": "2026-11-17 15:14:06",
+    "predicted_genre": "jazz",
+    "confidence_percentage": 23.56,
+    "model_used": "svm",
+    "audio_url": "/api/audio/sample/sample_jazz.wav",
+    "duration": 5.0,
+    "tempo_bpm": 112.3
+  },
+  {
+    "id": "sample_rock.wav",
+    "filename": "Sample: Rock",
+    "timestamp": "2026-11-17 15:14:05",
+    "predicted_genre": "rock",
+    "confidence_percentage": 30.42,
+    "model_used": "random_forest",
+    "audio_url": "/api/audio/sample/sample_rock.wav",
+    "duration": 5.0,
+    "tempo_bpm": 136.0
+  },
+  {
+    "id": "sample_classical.wav",
+    "filename": "Sample: Classical",
+    "timestamp": "2026-11-17 15:14:05",
+    "predicted_genre": "classical",
+    "confidence_percentage": 26.43,
+    "model_used": "ensemble",
+    "audio_url": "/api/audio/sample/sample_classical.wav",
+    "duration": 5.0,
+    "tempo_bpm": 117.5
+  }
+]
