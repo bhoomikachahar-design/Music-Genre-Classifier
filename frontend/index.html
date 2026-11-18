@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Genre Classifier & Explorer | GLA University</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            Music Genre Classifier & Explorer
+            <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-medium">GTZAN 10-Class</span>
+          </h1>
+          <p class="text-xs text-slate-400">Department of Computer Engineering & Applications • ML Software Project</p>
+        </div>
+      </div>
+
+      <!-- Model Selector & Navigation Tabs -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center bg-slate-800/80 rounded-lg p-1 border border-slate-700">
+          <label for="modelSelect" class="text-xs text-slate-400 px-2 font-medium">Model:</label>
+          <select id="modelSelect" class="bg-slate-900 text-xs font-semibold text-cyan-400 rounded px-2 py-1 border border-slate-700 focus:outline-none focus:border-cyan-500">
+            <option value="ensemble" selected>Hybrid Ensemble (82.0% Acc)</option>
+            <option value="random_forest">Random Forest Baseline (79.0% Acc)</option>
+            <option value="svm">Support Vector Machine (76.0% Acc)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS BAR -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 border-t border-slate-800/60 pt-1">
+      <button data-tab="explorerTab" class="tab-btn px-4 py-2 text-xs font-semibold border-b-2 bg-cyan-500/20 text-cyan-400 border-cyan-500 rounded-t flex items-center gap-2 transition">
+        <span>🎵</span> Classify & Explore
+      </button>
+      <button data-tab="metricsTab" class="tab-btn px-4 py-2 text-xs font-semibold border-b-2 text-slate-400 border-transparent hover:text-slate-200 rounded-t flex items-center gap-2 transition">
+        <span>📊</span> Model Metrics & Evaluation
+      </button>
+      <button data-tab="pipelineTab" class="tab-btn px-4 py-2 text-xs font-semibold border-b-2 text-slate-400 border-transparent hover:text-slate-200 rounded-t flex items-center gap-2 transition">
+        <span>🔬</span> Educational Pipeline
+      </button>
+      <button data-tab="historyTab" class="tab-btn px-4 py-2 text-xs font-semibold border-b-2 text-slate-400 border-transparent hover:text-slate-200 rounded-t flex items-center gap-2 transition">
+        <span>📜</span> History & Export
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ==================== TAB 1: EXPLORER ==================== -->
+    <div id="explorerTab" class="tab-pane space-y-6">
+
+      <!-- Upload & Quick Demo Panel -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left 2 Cols: Drag & Drop Upload Zone -->
+        <div class="lg:col-span-2 glass-panel p-6">
+          <h2 class="text-base font-bold text-slate-100 mb-2 flex items-center gap-2">
+            <span>Audio File Ingestion</span>
+            <span class="text-xs font-normal text-slate-400">(WAV, MP3, OGG, FLAC)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mb-4">
+            Upload an audio clip to extract 58 acoustic descriptors (MFCCs, spectral roll-off, chroma, RMS, tempo) and classify its musical genre.
+          </p>
+
+          <div id="uploadDropzone" class="dropzone rounded-xl p-8 text-center cursor-pointer bg-slate-900/50 hover:bg-slate-800/40 transition flex flex-col items-center justify-center">
+            <input type="file" id="audioFileInput" accept=".wav,.mp3,.ogg,.flac,.m4a" class="hidden">
+            <div class="w-14 h-14 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-3 border border-cyan-500/20">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+            <p class="text-sm font-semibold text-slate-200">Drag & drop your audio track here, or <span class="text-cyan-400 underline">browse files</span></p>
+            <p class="text-xs text-slate-400 mt-1">Files are normalized and resampled to 22,050 Hz (GTZAN benchmark standard)</p>
+          </div>
+        </div>
+
+        <!-- Right Col: One-Click Demo Samples -->
+        <div class="glass-panel p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-100 mb-1 flex items-center gap-2">
+              <span>Quick Test Samples</span>
+            </h2>
+            <p class="text-xs text-slate-400 mb-4">
+              Don't have an audio file ready? Test immediately with synthesized acoustic demo clips:
+            </p>
+
+            <div class="grid grid-cols-1 gap-2.5">
+              <button data-sample="classical" class="sample-btn px-3.5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">🎹</span>
+                  <div>
+                    <p class="text-xs font-bold text-amber-300">Classical Piano</p>
+                    <p class="text-[11px] text-slate-400">Arpeggios & harmonic clarity</p>
+                  </div>
+                </div>
+                <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition">Test &rarr;</span>
+              </button>
+
+              <button data-sample="rock" class="sample-btn px-3.5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">🎸</span>
+                  <div>
+                    <p class="text-xs font-bold text-orange-400">Rock Power Chords</p>
+                    <p class="text-[11px] text-slate-400">Overdriven riffs & 4/4 drum beat</p>
+                  </div>
+                </div>
+                <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition">Test &rarr;</span>
+              </button>
+
+              <button data-sample="jazz" class="sample-btn px-3.5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">🎷</span>
+                  <div>
+                    <p class="text-xs font-bold text-indigo-400">Jazz Swing Rhythm</p>
+                    <p class="text-[11px] text-slate-400">7th chords & ride cymbal swing</p>
+                  </div>
+                </div>
+                <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition">Test &rarr;</span>
+              </button>
+
+              <button data-sample="disco" class="sample-btn px-3.5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">🪩</span>
+                  <div>
+                    <p class="text-xs font-bold text-fuchsia-400">Disco 4-on-the-Floor</p>
+                    <p class="text-[11px] text-slate-400">124 BPM beat & funky synth bass</p>
+                  </div>
+                </div>
+                <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition">Test &rarr;</span>
+              </button>
+
+              <button data-sample="metal" class="sample-btn px-3.5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-left transition flex items-center justify-between group">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">⚡</span>
+                  <div>
+                    <p class="text-xs font-bold text-red-400">Metal High-Gain Chug</p>
+                    <p class="text-[11px] text-slate-400">Distorted harmonics & fast double-kick</p>
+                  </div>
+                </div>
+                <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition">Test &rarr;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State Guide -->
+      <div id="emptyState" class="glass-panel p-12 text-center">
+        <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-400">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-200 mb-1">Awaiting Audio Input</h3>
+        <p class="text-xs text-slate-400 max-w-md mx-auto">
+          Upload an audio file or click one of the quick test presets above to begin waveform analysis, MFCC extraction, and genre classification.
+        </p>
+      </div>
+
+      <!-- RESULTS CONTAINER (Hidden initially) -->
+      <div id="resultsContainer" class="hidden space-y-6">
+
+        <!-- Audio Player & Waveform Explorer -->
+        <div class="glass-panel p-6">
+          <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Waveform Explorer</span>
+              <h3 id="currentTrackTitle" class="text-base font-bold text-slate-100">track_name.wav</h3>
+            </div>
+            <!-- Audio Playback Controls -->
+            <div class="flex items-center gap-4 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700/60">
+              <button id="playPauseBtn" class="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-cyan-500/20 transition">
+                <!-- Play Icon -->
+                <svg id="playIcon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                </svg>
+                <!-- Pause Icon -->
+                <svg id="pauseIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <div class="text-xs font-mono text-slate-300">
+                <span id="currentTimeLabel">00:00</span> / <span id="durationLabel">00:00</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                <span>🔊</span>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.85" class="w-16 h-1 bg-slate-700 rounded-lg cursor-pointer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Waveform Canvas -->
+          <div class="relative w-full h-28 bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+            <canvas id="waveformCanvas" class="w-full h-full cursor-pointer"></canvas>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
+            <span>Click anywhere on the waveform to seek playback</span>
+            <span>Resampled: 22,050 Hz Mono • Amplitude Normalized</span>
+          </p>
+        </div>
+
+        <!-- PREDICTION RESULT & PROBABILITIES -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Left 1 Col: Top Prediction Badge & Musical Characteristics -->
+          <div class="glass-panel p-6 flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Classification Result</span>
+              <div class="mt-3 mb-4">
+                <div class="flex items-center gap-3">
+                  <span id="predictedGenreBadge" class="genre-tag px-4 py-1.5 rounded-full border text-lg font-bold tracking-wider">
+                    CLASSICAL
+                  </span>
+                </div>
+                <p id="predictedConfidenceText" class="text-sm font-semibold text-slate-300 mt-2">
+                  94.2% Confidence
+                </p>
+              </div>
+
+              <!-- Profile Details -->
+              <div class="border-t border-slate-700/60 pt-4 space-y-3">
+                <h4 id="profileTitle" class="text-xs font-bold uppercase tracking-wider text-slate-300">Genre Profile</h4>
+                <p id="profileDescription" class="text-xs text-slate-400 leading-relaxed">
+                  Detailed musical characteristics will display here.
+                </p>
+                <div>
+                  <span class="text-[11px] font-semibold text-slate-400 block mb-1">Acoustic Cues:</span>
+                  <p id="profileKeyFeatures" class="text-xs text-slate-300"></p>
+                </div>
+                <div>
+                  <span class="text-[11px] font-semibold text-slate-400 block mb-1">Common Instrumentation:</span>
+                  <div id="profileInstruments" class="flex flex-wrap gap-1.5"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 2 Cols: 10-Genre Probability Breakdown Chart -->
+          <div class="lg:col-span-2 glass-panel p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Multiclass Probability Distribution</span>
+              <span class="text-xs text-slate-400">All 10 GTZAN Benchmark Classes</span>
+            </div>
+            <div class="w-full h-72">
+              <canvas id="probChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- MFCC HEATMAP & ACOUSTIC FEATURES SUMMARY -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Left 2 Cols: MFCC Heatmap Visualizer -->
+          <div class="lg:col-span-2 glass-panel p-6">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Feature Representation</span>
+                <h3 class="text-base font-bold text-slate-100">Mel-Frequency Cepstral Coefficients (MFCC) Heatmap</h3>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-slate-400">
+                <span>Magma Spectrum</span>
+                <div class="w-16 h-2 rounded bg-gradient-to-r from-indigo-950 via-purple-600 via-pink-500 to-amber-300"></div>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">
+              Captures timbral characteristics across 20 mel-bands over time. High coefficients indicate spectral energy concentration.
+            </p>
+            <div class="relative w-full h-52 bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+              <canvas id="heatmapCanvas" class="w-full h-full"></canvas>
+            </div>
+          </div>
+
+          <!-- Right 1 Col: Acoustic Summary Indicators -->
+          <div class="glass-panel p-6">
+            <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Acoustic Indicators</span>
+            <h3 class="text-base font-bold text-slate-100 mb-4">Signal Statistics</h3>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">Tempo</span>
+                <span id="metricTempo" class="text-base font-bold text-cyan-400">-- BPM</span>
+              </div>
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">Duration</span>
+                <span id="metricDuration" class="text-base font-bold text-slate-200">-- s</span>
+              </div>
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">RMS Energy</span>
+                <span id="metricRms" class="text-base font-bold text-slate-200">-- dB</span>
+              </div>
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">Spectral Centroid</span>
+                <span id="metricCentroid" class="text-base font-bold text-slate-200">-- Hz</span>
+              </div>
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">Spectral Rolloff</span>
+                <span id="metricRolloff" class="text-base font-bold text-slate-200">-- Hz</span>
+              </div>
+              <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <span class="text-[11px] text-slate-400 block">Zero Crossing</span>
+                <span id="metricZcr" class="text-base font-bold text-slate-200">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: MODEL METRICS & EVALUATION ==================== -->
+    <div id="metricsTab" class="tab-pane hidden space-y-6">
+      
+      <!-- Model Comparison Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Random Forest Card -->
+        <div class="glass-panel p-6 border-l-4 border-cyan-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase text-cyan-400">Baseline Model</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 font-medium">Synopsis Spec</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100 mt-1">Random Forest</h3>
+          <p class="text-xs text-slate-400 mt-1 mb-4">300 Decision Trees • Tabular Gini Splitting</p>
+          <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Accuracy</span>
+              <span id="rfAcc" class="text-2xl font-black text-cyan-400">79.0%</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-slate-400 block">Macro F1</span>
+              <span id="rfF1" class="text-xl font-bold text-slate-300">0.785</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SVM Card -->
+        <div class="glass-panel p-6 border-l-4 border-indigo-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase text-indigo-400">Comparison Model</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 font-medium">RBF Kernel</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100 mt-1">Support Vector Machine</h3>
+          <p class="text-xs text-slate-400 mt-1 mb-4">StandardScaler • C=4.0 • Gamma='scale'</p>
+          <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Accuracy</span>
+              <span id="svmAcc" class="text-2xl font-black text-indigo-400">76.0%</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-slate-400 block">Macro F1</span>
+              <span id="svmF1" class="text-xl font-bold text-slate-300">0.759</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ensemble Card -->
+        <div class="glass-panel p-6 border-l-4 border-emerald-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase text-emerald-400">Optimal Model</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-medium">Production Active</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100 mt-1">Hybrid Soft-Voting Ensemble</h3>
+          <p class="text-xs text-slate-400 mt-1 mb-4">Blended RF (40%) + SVM (35%) + ExtraTrees (25%)</p>
+          <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Accuracy</span>
+              <span id="ensAcc" class="text-2xl font-black text-emerald-400">82.0%</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-slate-400 block">Macro F1</span>
+              <span id="ensF1" class="text-xl font-bold text-slate-300">0.817</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Confusion Matrix & Feature Importances Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Confusion Matrix -->
+        <div class="glass-panel p-6">
+          <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Evaluation Matrix</span>
+          <h3 class="text-base font-bold text-slate-100 mb-1">10x10 Multiclass Confusion Matrix</h3>
+          <p class="text-xs text-slate-400 mb-4">Diagonal cells indicate correct predictions on held-out test data.</p>
+          
+          <div class="overflow-x-auto">
+            <table id="cmTable" class="cm-table w-full border-collapse"></table>
+          </div>
+        </div>
+
+        <!-- Top Feature Importance Bar Chart -->
+        <div class="glass-panel p-6">
+          <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Feature Insights</span>
+          <h3 class="text-base font-bold text-slate-100 mb-1">Top Informative Acoustic Features</h3>
+          <p class="text-xs text-slate-400 mb-4">Gini feature importance ranking from Random Forest trees.</p>
+          <div class="w-full h-72">
+            <canvas id="featureImportanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-Class Metrics Table -->
+      <div class="glass-panel p-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Granular Breakdown</span>
+        <h3 class="text-base font-bold text-slate-100 mb-4">Per-Genre Precision, Recall & F1-Score</h3>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="text-slate-400 uppercase border-b border-slate-700 bg-slate-900/60">
+              <tr>
+                <th class="py-2.5 px-3">Genre</th>
+                <th class="py-2.5 px-3">Precision</th>
+                <th class="py-2.5 px-3">Recall</th>
+                <th class="py-2.5 px-3">F1-Score</th>
+                <th class="py-2.5 px-3">Test Support</th>
+              </tr>
+            </thead>
+            <tbody id="perClassTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 3: EDUCATIONAL PIPELINE ==================== -->
+    <div id="pipelineTab" class="tab-pane hidden space-y-6">
+      
+      <div class="glass-panel p-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">System Architecture</span>
+        <h2 class="text-xl font-bold text-slate-100 mt-1 mb-2">End-to-End Audio Signal to Prediction Pipeline</h2>
+        <p class="text-xs text-slate-400 max-w-3xl leading-relaxed">
+          As documented in the project synopsis, this system integrates digital signal processing (DSP) and supervised machine learning to provide transparent, interpretable audio classification.
+        </p>
+
+        <!-- Step by Step Visual Pipeline -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
+          
+          <!-- Step 1 -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-sm mb-3">1</div>
+              <h4 class="text-sm font-bold text-slate-200 mb-1">Audio Ingestion</h4>
+              <p class="text-xs text-slate-400">Decodes raw audio bytes, resamples to 22,050 Hz, converts multi-channel to mono, and applies amplitude peak normalization.</p>
+            </div>
+            <div class="mt-4 text-[11px] font-mono text-cyan-400 bg-slate-950 p-2 rounded">
+              y(t), fs = 22,050 Hz
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm mb-3">2</div>
+              <h4 class="text-sm font-bold text-slate-200 mb-1">Time-Frequency (STFT)</h4>
+              <p class="text-xs text-slate-400">Divides audio into overlapping frames and applies Fast Fourier Transform to extract spectral energy distribution across frequencies.</p>
+            </div>
+            <div class="mt-4 text-[11px] font-mono text-indigo-400 bg-slate-950 p-2 rounded">
+              X(m, ω) = STFT{y(t)}
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-sm mb-3">3</div>
+              <h4 class="text-sm font-bold text-slate-200 mb-1">MFCC & Timbral Extraction</h4>
+              <p class="text-xs text-slate-400">Applies Mel-filterbanks and Discrete Cosine Transform (DCT) for 20 MFCCs, plus Chroma, Spectral Centroid, Rolloff, HPSS & Tempo.</p>
+            </div>
+            <div class="mt-4 text-[11px] font-mono text-purple-400 bg-slate-950 p-2 rounded">
+              MFCC 1..20, Centroid, ZCR
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 font-bold flex items-center justify-center text-sm mb-3">4</div>
+              <h4 class="text-sm font-bold text-slate-200 mb-1">Feature Aggregation</h4>
+              <p class="text-xs text-slate-400">Computes temporal mean and variance across all acoustic frames, assembling the calibrated 58-dimensional tabular feature vector.</p>
+            </div>
+            <div class="mt-4 text-[11px] font-mono text-pink-400 bg-slate-950 p-2 rounded">
+              x ∈ ℝ⁵⁸ vector
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm mb-3">5</div>
+              <h4 class="text-sm font-bold text-slate-200 mb-1">Supervised Inference</h4>
+              <p class="text-xs text-slate-400">The feature vector is evaluated by trained Random Forest / SVM classifiers to compute posterior probabilities across all 10 genres.</p>
+            </div>
+            <div class="mt-4 text-[11px] font-mono text-emerald-400 bg-slate-950 p-2 rounded">
+              P(Genre | x) → Top-1
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 4: HISTORY & EXPORT ==================== -->
+    <div id="historyTab" class="tab-pane hidden space-y-6">
+      
+      <div class="glass-panel p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Analysis Logs</span>
+            <h2 class="text-lg font-bold text-slate-100">Prediction & Feature History</h2>
+            <p class="text-xs text-slate-400">Saved records of analyzed tracks with probabilities and acoustic characteristics.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="exportCsvBtn" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold transition flex items-center gap-1.5">
+              <span>📥</span> Export CSV
+            </button>
+            <button id="exportJsonBtn" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+              <span>📄</span> Export JSON
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="text-slate-400 uppercase border-b border-slate-700 bg-slate-900/60">
+              <tr>
+                <th class="py-3 px-4">#</th>
+                <th class="py-3 px-4">Track Name</th>
+                <th class="py-3 px-4">Predicted Genre</th>
+                <th class="py-3 px-4">Confidence</th>
+                <th class="py-3 px-4">Duration / Tempo</th>
+                <th class="py-3 px-4">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="historyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- LOADING OVERLAY MODAL -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center">
+      <div class="w-12 h-12 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin mb-4"></div>
+      <h3 class="text-base font-bold text-slate-100 mb-1">Processing Audio Signal</h3>
+      <p id="loadingText" class="text-xs text-slate-400">Resampling, extracting 58 features, and classifying...</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 py-4 bg-slate-950 text-center text-xs text-slate-500">
+    <p>Music Genre Classifier & Explorer • Department of Computer Engineering & Applications • GLA University</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/js/visualizers.js"></script>
+  <script src="/static/js/audioPlayer.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
